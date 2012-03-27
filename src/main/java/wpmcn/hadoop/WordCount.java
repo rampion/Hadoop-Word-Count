@@ -4,6 +4,7 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
+import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
@@ -44,6 +45,10 @@ public class WordCount extends Configured implements Tool {
    }
 
    public int run(String[] args) throws Exception {
+      if (args.length != 2){
+        System.err.println("input and output directories expected");
+        return -1;
+      }
       Configuration configuration = getConf();
 
       Job job = new Job(configuration, "Word Count");
@@ -55,6 +60,12 @@ public class WordCount extends Configured implements Tool {
 
       job.setInputFormatClass(TextInputFormat.class);
       job.setOutputFormatClass(TextOutputFormat.class);
+
+      Path in = new Path(args[0]);
+      TextInputFormat.addInputPath(job, in);
+
+      Path out = new Path(args[1]);
+      TextOutputFormat.setOutputPath(job, out);
 
       job.setOutputKeyClass(Text.class);
       job.setOutputValueClass(LongWritable.class);
